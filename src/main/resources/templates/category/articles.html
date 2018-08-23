@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title th:text="${name} + '-目录'"></title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-light bg-light mb-4 fixed-top">
+    <a class="navbar-brand" th:href="@{/}">个人博客</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/}">首页 <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" th:href="@{/category}">分类</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/messages}">留言</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/about}">关于</a>
+            </li>
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+                <a class="nav-link" th:href="@{/edit}">发文</a>
+            </li>
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+                <form id="logout-form" style="padding: 0px; border: none; background: none;" class="nav-link" th:action="@{/logout}" method="post">
+                    <input for="logout-form" style="border: none; background: none;" type="submit" class="nav-link" th:value="退出">
+                </form>
+            </li>
+            <li class="nav-item" sec:authorize="isAnonymous()">
+                <a class="nav-link" th:href="@{/login}">登录</a>
+            </li>
+        </ul>
+        <form class="form-inline mt-2 mt-md-0" th:action="@{/search}" method="get">
+            <input name="keyWord" class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">搜索</button>
+        </form>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="mb-3">
+        <span class="h3" th:text="${name}"></span>
+        <span class="text-secondary text-muted">分类下的文章</span>
+    </div>
+
+    <div class="list-group mb-2" th:each="article : ${articles}">
+        <a th:href="@{'/article/id/' + ${article.id}}"
+           th:text="${article.title}" class="list-group-item list-group-item-action text-primary"></a>
+    </div>
+
+</div>
+
+
+<footer class="footer">
+    <div class="container">
+        <span class="text-muted">Copyright ©2018 Powered By dlz</span>
+    </div>
+</footer>
+<!-- jQuery first, then Bootstrap JS. -->
+<script src="https://cdn.bootcss.com/jquery/1.12.3/jquery.min.js"></script>
+<script src="/js/bootstrap.js"></script>
+</body>
+</html>
+</body>
+</html>

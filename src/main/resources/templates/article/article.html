@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title th:text="${article.title}"></title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!--editor.md CSS-->
+    <link rel="stylesheet" th:href="@{/editor/css/editormd.css}">
+    <link rel="stylesheet" th:href="@{/editor/css/editormd.preview.css}">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+
+
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-light bg-light mb-4 fixed-top">
+    <a class="navbar-brand" th:href="@{/}">个人博客</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/}">首页 <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/category}">分类</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/messages}">留言</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/about}">关于</a>
+            </li>
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+                <a class="nav-link" th:href="@{/edit}">发文</a>
+            </li>
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+                <form id="logout-form" style="padding: 0px; border: none; background: none;" class="nav-link" th:action="@{/logout}" method="post">
+                    <input for="logout-form" style="border: none; background: none;" type="submit" class="nav-link" th:value="退出">
+                </form>
+            </li>
+            <li class="nav-item" sec:authorize="isAnonymous()">
+                <a class="nav-link" th:href="@{/login}">登录</a>
+            </li>
+        </ul>
+        <form class="form-inline mt-2 mt-md-0" th:action="@{/search}" method="get">
+            <input name="keyWord" class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">搜索</button>
+        </form>
+    </div>
+</nav>
+
+
+<div class="blog-header">
+    <div class="container">
+        <h1 class="blog-title" th:text="${article.title}"></h1>
+        <p class="lead text-secondary" th:text="${#dates.format(article.created_time, 'yyyy-MM-dd hh:mm')} + ' By ' + ${article.author}"></p>
+        <p class="lead text-secondary small">
+            分类于：
+            <a th:href="@{'/category/' + ${article.catName}}" th:text="${article.catName}"></a>
+        </p>
+        <p class="lead text-secondary small" th:text="'最后编辑:' + ${#dates.format(article.modified_time, 'yyyy-MM-dd hh:mm')} + ' ' + ${article.views} + '次阅读'"></p>
+        <p sec:authorize="isAuthenticated()">
+            <a th:href="@{'/modify' + '?id=' +${article.id}}">修改</a>
+            <button type="button" style="border: none; background: none;" class="btn-link" data-toggle="modal" data-target="#myModal">
+                删除
+            </button>
+        </p>
+            <!-- Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title text-danger" id="myModalLabel">警告</h4>
+                    </div>
+                    <div class="modal-body">
+                        文章一旦删除将无法恢复，确定？
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary"><a th:href="@{'/article/delete?id=' + ${article.id}}" class="text-light">确定删除</a></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="doc-content" class="container" style="font-size: 1.0rem;">
+        <textarea id="ta" style="display:none;"></textarea>
+    </div>
+</div>
+
+<div class="container pt-5 pb-4">
+    <hr>
+    <a href="#" name="comment"></a>
+    <div class="card p-3 mb-3 box-shadow">
+        <form action="#" th:action="@{/comment/add-one-comment}" method="post">
+            <input type="hidden" name="article_id" th:value="${article.id}">
+            <div class="form-group">
+                <label for="exampleInputEmail1">姓名：</label>
+                <input type="text" name="speaker" class="form-control" id="exampleInputEmail1" placeholder="请输入您的姓名" required>
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword1">评论：</label>
+                <input type="text" name="comment_content" class="form-control" id="exampleInputPassword1" placeholder="请留下您的建议" required>
+            </div>
+            <button type="submit" class="btn btn-primary">提交</button>
+
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        </form>
+    </div>
+
+    <div class="card flex-md-row mb-4 box-shadow h-md-250" th:each="comment : ${comments}">
+        <div class="card-body d-flex flex-column align-items-start">
+            <div>
+                <strong class="text-left" th:text="${comment.speaker}"></strong>
+                <span class="text-right text-secondary" th:text="${#dates.format(comment.comment_time, 'yyyy-MM-dd hh:mm')}"></span>
+                <span sec:authorize="isAuthenticated()">
+                    <button type="button" style="border: none; background: none;" class="btn-link" data-toggle="modal" th:data-target="'#myModal'+ ${comment.id}">
+                        删除
+                    </button>
+
+                <div class="modal fade" th:id="'myModal' + ${comment.id}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title text-danger" th:id="'myModal' + ${comment.id}">警告</h4>
+                            </div>
+                            <div class="modal-body">
+                                是否删除该评论？
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">否</button>
+                                <a th:href="@{'/comment/delete?id=' + ${comment.id} + '&art_id=' + ${article.id}}"><button type="button" class="btn btn-primary">是</button></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </span>
+            </div>
+            <p class="card-text mt-3" th:text="${comment.comment_content}"></p>
+        </div>
+    </div>
+
+    <a href="" class="b"></a>
+
+</div>
+
+<footer class="footer">
+    <div class="container">
+        <span class="text-muted">Copyright ©2018 Powered By dlz</span>
+    </div>
+</footer>
+
+<!-- jQuery first, then Bootstrap JS. -->
+<script src="https://cdn.bootcss.com/jquery/1.12.3/jquery.min.js"></script>
+<script src="/js/bootstrap.js"></script>
+
+
+<!---->
+<script th:src="@{/editor/examples/js/jquery.min.js}"></script>
+<script th:src="@{/editor/lib/marked.min.js}"></script>
+<script th:src="@{/editor/lib/prettify.min.js}"></script>
+<script th:src="@{/editor/editormd.min.js}"></script>
+
+<script type="text/javascript">
+    var testEditor;
+    $(function () {
+        testEditor = editormd.markdownToHTML("doc-content", {
+            htmlDecode: "style,script,iframe",
+            taskList: true,
+            tex: true, // 默认不解析
+            flowChart: true, // 默认不解析
+            sequenceDiagram: true, // 默认不解析
+            codeFold: true,
+        });});
+</script>
+<!--之所以要添加下面这段代码，是因为当 ${body} 的内容过多时，
+可能会导致之后的 th:xxxx="" 无法执行，导致页面显示不全。-->
+<script th:inline="javascript">
+    var data = [[${body}]];
+    document.getElementById("ta").value =  data;
+</script>
+</body>
+</html>

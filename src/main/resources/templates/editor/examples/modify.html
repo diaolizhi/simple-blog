@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="utf-8" />
+    <title>修改博客</title>
+
+    <!--关键代码：引入 css 代码，路径一定要正确-->
+    <link rel="stylesheet" th:href="@{/examples/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/css/editormd.css}" />
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-light bg-light mb-4 fixed-top">
+    <a class="navbar-brand" th:href="@{/}">个人博客</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" th:href="@{/}">首页 <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/category}">分类</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/messages}">留言</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/about}">关于</a>
+            </li>
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+                <a class="nav-link" th:href="@{/edit}">发文</a>
+            </li>
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+                <form id="logout-form" style="padding: 0px; border: none; background: none;" class="nav-link" th:action="@{/logout}" method="post">
+                    <input for="logout-form" style="border: none; background: none;" type="submit" class="nav-link" th:value="退出">
+                </form>
+            </li>
+            <li class="nav-item" sec:authorize="isAnonymous()">
+                <a class="nav-link" th:href="@{/login}">登录</a>
+            </li>
+        </ul>
+        <form class="form-inline mt-2 mt-md-0" th:action="@{/search}" method="get">
+            <input name="keyWord" class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">搜索</button>
+        </form>
+    </div>
+</nav>
+<div id="layout">
+    <header>
+        <h1 class="h1">修改文章</h1>
+    </header>
+
+    <!--表格-->
+    <form id="my-form" class="needs-validation container mb-3" method="post" th:action="@{/preview}">
+        <input type="text" hidden name="id" th:value="${article.id}">
+        <input type="hidden" name="target" value="article_modify">
+        <div class="form-row">
+            <div class="col-md-3 mb-3">
+                <label for="validationTooltip01">标题</label>
+                <input type="text" name="title" class="form-control" id="validationTooltip01" placeholder="请输入标题" th:value="${article.title}" required>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="validationTooltip02">作者</label>
+                <input type="text" name="author" class="form-control" id="validationTooltip02" placeholder="请输入作者" th:value="${article.author}" required>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="validationTooltip03">分组</label>
+                <input type="text" name="category" class="form-control" id="validationTooltip03" placeholder="请输入分组名称" th:value="${article.catName}" required>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="text-secondary" for="validationTooltip04">点击预览</label>
+                <input type="submit" class="btn btn-primary form-control" id="validationTooltip04" value="预览">
+            </div>
+        </div>
+    </form>
+
+    <div class="editormd" id="test-editormd">
+        <textarea form="my-form" class="editormd-markdown-textarea form-control" name="body" required  th:text="${article.body}"></textarea>
+    </div>
+
+</div>
+
+<script src="https://cdn.bootcss.com/jquery/1.12.3/jquery.min.js"></script>
+<script src="/js/bootstrap.js"></script>
+<!--关键代码：引入 js。顺序和路径都要注意。-->
+<script src="examples/js/jquery.min.js"></script>
+<script src="/editormd.min.js"></script>
+<script type="text/javascript">
+    var testEditor;
+    // 这里的 test-editormd 与上面 div 的 id 相对应
+    // 所有的名字尽量不要改，免得出错
+    $(function() {
+        testEditor = editormd("test-editormd", {
+            width   : "90%",
+            height  : 640,
+            syncScrolling : "single",
+        });
+    });
+</script>
+
+</body>
+</html>

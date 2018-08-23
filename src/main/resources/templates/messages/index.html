@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title>留言</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+</head>
+<body>
+
+<nav class="navbar navbar-expand-md navbar-light bg-light mb-4 fixed-top">
+    <a class="navbar-brand" th:href="@{/}">个人博客</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/}">首页 <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/category}">分类</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" th:href="@{/messages}">留言</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/about}">关于</a>
+            </li>
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+                <a class="nav-link" th:href="@{/edit}">发文</a>
+            </li>
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+                <form id="logout-form" style="padding: 0px; border: none; background: none;" class="nav-link" th:action="@{/logout}" method="post">
+                    <input for="logout-form" style="border: none; background: none;" type="submit" class="nav-link" th:value="退出">
+                </form>
+            </li>
+            <li class="nav-item" sec:authorize="isAnonymous()">
+                <a class="nav-link" th:href="@{/login}">登录</a>
+            </li>
+        </ul>
+        <form class="form-inline mt-2 mt-md-0" th:action="@{/search}" method="get">
+            <input name="keyWord" class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">搜索</button>
+        </form>
+    </div>
+</nav>
+
+
+<div class="container">
+
+    <div class="mb-3 text-center">
+        <span class="h3" th:text="留言板"></span>
+    </div>
+
+    <div class="card mb-4 box-shadow p-3">
+        <form th:action="@{/messages/add-one-message}" method="post">
+            <div class="form-group">
+                <label for="exampleInputEmail1">姓名：</label>
+                <input type="text" name="speaker" class="form-control" id="exampleInputEmail1" placeholder="请输入您的姓名" required>
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword1">留言：</label>
+                <input type="text" name="message_content" class="form-control" id="exampleInputPassword1" placeholder="请输入您想说的话" required>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary form-control">提交</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card flex-md-row mb-4 box-shadow h-md-250" th:each="message : ${messages}">
+        <div class="card-body d-flex flex-column align-items-start">
+            <div>
+                <span class="glyphicons glyphicons-user"></span>
+                <strong class="text-left" th:text="${message.speaker}"></strong>
+                <span class="text-right text-secondary" th:text="${#dates.format(message.message_time, 'yyyy-MM-dd hh:mm')}"></span>
+                <span sec:authorize="isAuthenticated()">
+                    <button type="button" style="border: none; background: none;" class="btn-link" data-toggle="modal" th:data-target="'#myModal'+ ${message.id}">
+                        删除
+                    </button>
+
+                    <!-- Modal -->
+                <div class="modal fade" th:id="'myModal' + ${message.id}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title text-danger" th:id="'myModal' + ${message.id}">警告</h4>
+                            </div>
+                            <div class="modal-body">
+                                是否删除该留言？
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">否</button>
+                                <a th:href="@{'/messages/delete?id=' + ${message.id} + '&pageNum=' + ${myPageInfo.currentNum}}"><button type="button" class="btn btn-primary">是</button></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </span>
+            </div>
+            <p class="card-text mt-3" th:text="${message.message_content}"></p>
+        </div>
+    </div>
+
+</div>
+
+
+<main class="container">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            <main th:switch="${myPageInfo.hasPrePage}">
+                <li class="page-item disabled" th:case="false">
+                    <a class="page-link" th:href="@{'?pageNum=' + ${myPageInfo.prePage}}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item" th:case="true">
+                    <a class="page-link" th:href="@{'?pageNum=' + ${myPageInfo.prePage}}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+            </main>
+
+            <main  th:each="num : ${myPageInfo.navNums}">
+                <li class="page-item active"  th:if="${myPageInfo.currentNum} == ${num}">
+                    <a class="page-link active" th:href="@{'?pageNum=' + ${num}}" th:text="${num}">
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <li class="page-item"  th:unless="${myPageInfo.currentNum} == ${num}">
+                    <a class="page-link active" th:href="@{'?pageNum=' + ${num}}" th:text="${num}">
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+            </main>
+
+
+            <main   th:switch="${myPageInfo.hasNextPage}">
+                <li class="page-item disabled" th:case="false">
+                    <a class="page-link" th:href="@{'?pageNum=' + ${myPageInfo.nextPage}}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+                <li class="page-item" th:case="true">
+                    <a class="page-link" th:href="@{'?pageNum=' + ${myPageInfo.nextPage}}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </main>
+
+        </ul>
+    </nav>
+
+</main>
+
+
+<footer class="footer">
+    <div class="container">
+        <span class="text-muted">Copyright ©2018 Powered By dlz</span>
+    </div>
+</footer>
+<!-- jQuery first, then Bootstrap JS. -->
+<script src="https://cdn.bootcss.com/jquery/1.12.3/jquery.min.js"></script>
+<script src="/js/bootstrap.js"></script>
+</body>
+</html>
