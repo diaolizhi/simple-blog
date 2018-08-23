@@ -35,7 +35,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         Pbkdf2PasswordEncoder encoder = new Pbkdf2PasswordEncoder();
-        String password = encoder.encode("mp5201314");
+        String password = encoder.encode("admin");
         auth
                 .inMemoryAuthentication()
                 .passwordEncoder(encoder)
