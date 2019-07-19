@@ -1,6 +1,7 @@
 package com.diaolizhi.simpleblog.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,10 +33,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.headers().defaultsDisabled().cacheControl();
     }
 
+    @Value("${admin.passwd}")
+    private String passwd;
+
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         Pbkdf2PasswordEncoder encoder = new Pbkdf2PasswordEncoder();
-        String password = encoder.encode("admin");
+        String password = encoder.encode(passwd);
         auth
                 .inMemoryAuthentication()
                 .passwordEncoder(encoder)

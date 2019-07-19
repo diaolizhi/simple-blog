@@ -33,7 +33,7 @@ public interface ArticleMapper {
      * 查询所有文章
      * @return
      */
-    @Select("SELECT id, title, author, created_time, category, is_hide, LEFT(body, 100) body FROM article ORDER BY created_time")
+    @Select("SELECT id, title, author, created_time, category, is_hide, body FROM article ORDER BY created_time")
     List<Article> selectAll();
 
     /**

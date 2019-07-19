@@ -69,16 +69,28 @@ public class IndexController {
 
 
         HashMap<Integer, String> catMap = new HashMap<>();
-        for(Article article : articles) {
-            int catId = article.getCategory();
+
+        for (int i = 0; i < articles.size(); i++) {
+            int catId = articles.get(i).getCategory();
             if(null == catMap.get(catId)) {
                 String cat = categoryService.selectCatNameById(catId);
-                article.setCatName(cat);
+                articles.get(i).setCatName(cat);
                 catMap.put(catId, cat);
             } else {
-                article.setCatName(catMap.get(catId));
+                articles.get(i).setCatName(catMap.get(catId));
             }
+            String body = articles.get(i).getBody();
+
+            System.out.println(articles.get(i) == articles.get(i));
+
+            String[] ss = body.split("\\[//\\]: <> \\(more\\)");
+            System.out.println(articles.get(i).getTitle() + ": " + ss.length);
+            body = ss[0];
+
+            body = body.replaceAll("[\\n\\r\\t]+", "<br>");
+            articles.get(i).setBody(body);
         }
+
         map.addAttribute("myPageInfo", myPageInfo);
         map.addAttribute("catMap", catMap);
         map.addAttribute("articles", articles);

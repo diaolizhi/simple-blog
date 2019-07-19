@@ -61,7 +61,7 @@
                 <a class="text-dark article-title" th:href="@{'/article/id/' + ${article.id}}" th:text="${article.title}"></a>
             </h3>
             <div class="mb-1 text-muted" th:text="${#dates.format(article.created_time, 'yyyy-MM-dd hh:mm')}"></div>
-            <p class="card-text mb-1" style="word-break:break-all;" th:text="${article.body} + '...'"></p>
+            <p class="card-text mb-1" style="word-break:break-all;" th:utext="${article.body}"></p>
             <button href="#" class="btn btn-primary"><a th:href="@{'/article/id/' + ${article.id}}" class="text-light">阅读全文</a></button>
         </div>
     </div>
